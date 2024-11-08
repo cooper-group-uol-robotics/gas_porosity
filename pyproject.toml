@@ -1,0 +1,25 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+[project]
+name = "gasporosity"
+version = "0.0.1"
+authors = [
+  { name="Adam Edwards", email="mato@liverpool.ac.uk" },
+]
+dependencies = [
+    "numpy < 2",
+    "nicegui>=2.5.0",
+    "opencv-python>=4.10.0.84",
+    "pyserial>=3.5",
+    "spinnaker-python > 0",
+    "matplotlib>=3.9.2"
+]
+description = "Gas Porosity testing with thermal camera"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]

@@ -1,0 +1,1 @@
+Get the spinnaker sdk from https://www.teledynevisionsolutions.com/products/spinnaker-sdk/?model=Spinnaker%20SDK&vertical=machine%20vision&segment=iis
