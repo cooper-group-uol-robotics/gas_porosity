@@ -182,7 +182,6 @@ controller = DataController()
 state = State(
     {0: controller.probe, 1: controller.edit_corners, 2: controller.edit_wells}
 )
-path = "data/mycsv.csv"
 global btn_stop_data
 with ui.splitter() as splitter:
     with splitter.before:
@@ -204,16 +203,22 @@ with ui.splitter() as splitter:
                         n=1, limit=5000, figsize=(10, 5), update_every=5
                     ).with_legend(["pressure"], loc="upper center", ncol=1)
             with h_splitter.after:
-                ui.label("Pheonix Controls")
-                btn_degas = ui.button("Degas", on_click=lambda: degas())
-                ui.label("Degas Timer:")
-                timer = ui.label()
-                degas_timer = ui.timer(
-                    1,
-                    callback=lambda: degas_timer_function(datetime.now()),
-                    active=False,
-                )
-                btn_cancel = ui.button("Cancel", on_click=lambda: degas_cancel())
+                with ui.splitter() as v_splitter:
+                    with v_splitter.before:
+                        ui.label("Pheonix Controls")
+                        btn_degas = ui.button("Degas", on_click=lambda: degas())
+                        ui.label("Degas Timer:")
+                        timer = ui.label()
+                        degas_timer = ui.timer(
+                            1,
+                            callback=lambda: degas_timer_function(datetime.now()),
+                            active=False,
+                        )
+                        btn_cancel = ui.button("Cancel", on_click=lambda: degas_cancel())
+                    with v_splitter.after:
+                        ui.label("File Config")
+                        temp_file_name = ui.input(label="Temp File Name",value="Temperature")
+                        pres_file_name = ui.input(label="Pressure File Name",value="Pressure")
     with splitter.after:
         ui.label("Camera Controls")
         with ui.row():
@@ -246,7 +251,7 @@ with ui.splitter() as splitter:
         ui.timer(interval=0.1, callback=lambda: update_image())
         writer = ui.timer(
             interval=1,
-            callback=lambda: controller.write(path, datetime.now().time()),
+            callback=lambda: controller.write("data/" + temp_file_name.value + ".csv", datetime.now().time()),
             active=False,
         )
 
