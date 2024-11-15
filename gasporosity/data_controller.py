@@ -9,6 +9,36 @@ import threading
 from .classes.pheonix_ii import Pheonix
 import time
 import os
+from .classes.threads import StoppableThread
+
+
+class DoseThread(StoppableThread):
+    def __init__(self, arduino, cycles):
+        super().__init__()
+        self.cycles = cycles
+        self.cycle = 0
+        self.arduino = arduino
+
+    def run(self):
+        count = 0
+        while not self.stopped():
+            if self.cycle == 0:
+                self.arduino.write(b"1")
+                self.cycle +=1
+                time.sleep(10)
+            
+            if self.arduino.dosingStatus != "1":
+                if count == 300:
+                    self.arduino.write(b"1")
+                    count = 0
+                    self.cycle += 1
+                else:
+                    count += 5
+                    
+            if self.cycle > self.cycles:
+                self.stop()
+            time.sleep(5)
+
 
 class DataController:
     def __init__(self) -> None:
@@ -23,6 +53,8 @@ class DataController:
         self.pheonix = Pheonix()
         self.cancel = False
         self.degas_done = False
+        self.dosing_cycles = 7
+        self.cycle = 0
 
     def set_state(self, state):
         self.state = state
@@ -34,7 +66,11 @@ class DataController:
         self.video_capture.auto_focus()
 
     def dose(self):
-        self.arduino.write(b"1")
+        self.dose_thread = DoseThread(self.arduino, self.dosing_cycles)
+        self.dose_thread.start()
+
+    def stop_dose(self):
+        self._stop_thread(self.dose_thread)
 
     def stop_reading(self):
         self._stop_thread(self.read_thread)
@@ -253,30 +289,32 @@ class DataController:
         with open(path, "a") as file:
             file.write(csvline)
 
-    def create_file(self,file_name):
+    def create_file(self, file_name):
         numbers_to_letters = {
-        0: "A",
-        1: "B",
-        2: "C",
-        3: "D",
-        4: "E",
-        5: "F",
-        6: "G",
-        7: "H",
+            0: "A",
+            1: "B",
+            2: "C",
+            3: "D",
+            4: "E",
+            5: "F",
+            6: "G",
+            7: "H",
         }
-        with open(file_name,"w") as file:
+        with open(file_name, "w") as file:
             csv_line = "Timestamp,"
             for i in range(12):
                 for j in range(8):
                     csv_line = csv_line + f"{i + 1}{numbers_to_letters[j]},"
             file.write(csv_line + "\n")
-            
 
     def cleanup(self):
         self._stop_thread(self.read_thread)
+        self._stop_thread(self.dose_thread)
+        self.dose_thread.join()
         self.read_thread.join()
         self.arduino.close()
-        self.video_capture.cleanup()
+        if self.video_capture is not None:
+            self.video_capture.cleanup()
 
 
 if __name__ == "__main__":
