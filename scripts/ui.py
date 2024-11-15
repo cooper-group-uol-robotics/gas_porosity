@@ -35,6 +35,8 @@ def start_data_capture():
 def calculate_mask():
     global btn_stop_data
     controller.calculate_mask()
+    global temp_file_name
+    controller.make_file(temp_file_name)
     btn_stop_data.enable()
     writer.activate()
 
@@ -71,9 +73,9 @@ def mouse_handler(e: events.MouseEventArguments):
     return ret
 
 
-def arduino_on():
+def arduino_on(file_name):
     try:
-        controller.start_reading_arduino(line_plot)
+        controller.start_reading_arduino(line_plot, file_name)
         btn_start_arduino.disable()
         btn_stop_arduino.enable()
         btn_dose.enable()
@@ -191,7 +193,7 @@ with ui.splitter() as splitter:
                 with ui.row():
                     btn_start_arduino = ui.button(
                         "start Listening",
-                        on_click=lambda: arduino_on(),
+                        on_click=lambda: arduino_on("data/" + pres_file_name.value + ".csv"),
                     )
                     btn_dose = ui.button("dose", on_click=lambda: controller.dose())
                     btn_dose.disable()
@@ -214,11 +216,17 @@ with ui.splitter() as splitter:
                             callback=lambda: degas_timer_function(datetime.now()),
                             active=False,
                         )
-                        btn_cancel = ui.button("Cancel", on_click=lambda: degas_cancel())
+                        btn_cancel = ui.button(
+                            "Cancel", on_click=lambda: degas_cancel()
+                        )
                     with v_splitter.after:
                         ui.label("File Config")
-                        temp_file_name = ui.input(label="Temp File Name",value="Temperature")
-                        pres_file_name = ui.input(label="Pressure File Name",value="Pressure")
+                        temp_file_name = ui.input(
+                            label="Temp File Name", value="Temperature"
+                        )
+                        pres_file_name = ui.input(
+                            label="Pressure File Name", value="Pressure"
+                        )
     with splitter.after:
         ui.label("Camera Controls")
         with ui.row():
@@ -251,7 +259,9 @@ with ui.splitter() as splitter:
         ui.timer(interval=0.1, callback=lambda: update_image())
         writer = ui.timer(
             interval=1,
-            callback=lambda: controller.write("data/" + temp_file_name.value + ".csv", datetime.now().time()),
+            callback=lambda: controller.write(
+                "data/" + temp_file_name.value + ".csv", datetime.now().time()
+            ),
             active=False,
         )
 
