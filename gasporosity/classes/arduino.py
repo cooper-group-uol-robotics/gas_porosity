@@ -4,11 +4,12 @@ from datetime import datetime
 
 
 class readThread(StoppableThread):
-    def __init__(self, arduino, lock, output):
+    def __init__(self, arduino, lock, output, output_file_name):
         super().__init__()
         self.arduino = arduino
         self.lock = lock
         self.output = output
+        self.output_file_name = output_file_name
 
     def run(self):
         while not self.stopped():
@@ -22,9 +23,9 @@ class readThread(StoppableThread):
                     # plot time against pressure
                     now = datetime.now()
                     y1 = float(self.arduino.pressure)
-                    self.output.push([now], [[y1]]) 
+                    self.output.push([now], [[y1]])
                     # save values to file
-                    with open("data/pressure.csv", "a") as file:
+                    with open(self.output_file_name, "a") as file:
                         file.write(f"{now}, {y1} \n")
                 except Exception as e:
                     print(f"partial message, {e}")
@@ -46,9 +47,8 @@ class Arduino:
 
     def read(self, lock):
         # need to lock as this needs to be thread safe
-        #with lock:
+        # with lock:
         try:
-
             return self.ser.readline().decode().strip()
         except Exception as e:
             print(e)
