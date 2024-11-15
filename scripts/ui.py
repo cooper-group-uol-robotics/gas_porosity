@@ -98,12 +98,14 @@ def degas():
     degas_start_time = datetime.now()
     degas_timer.activate()
 
+
 def degas_cancel():
     global degas_start_time
     degas_start_time = None
     timer.set_text("Cancelled")
     degas_timer.deactivate()
     controller.cancel_degas()
+
 
 def degas_timer_function(timenow):
     global degas_start_time
@@ -130,10 +132,21 @@ def draw_circles():
     draws the circles on the video image
     """
     video_image.content = ""
-    for x in controller.coords:
-        for y in x:
+    numbers_to_letters = {
+        0: "A",
+        1: "B",
+        2: "C",
+        3: "D",
+        4: "E",
+        5: "F",
+        6: "G",
+        7: "H",
+    }
+    for i, x in enumerate(controller.coords):
+        for j, y in enumerate(x):
             color = "SkyBlue"
             video_image.content += f'<circle cx="{y[0]}" cy="{y[1]}" r="{slider.value}" fill="none" stroke="{color}" stroke-width="3" />'
+            video_image.content += f'<text x={y[0] + slider.value} y={y[1] + slider.value} stroke="white" font-size="10">{i + 1}{numbers_to_letters[j]}</text>'
     for corner in controller.corners:
         color = "Green"
         video_image.content += f'<circle cx="{corner[0]}" cy="{corner[1]}" r="{slider.value}" fill="none" stroke="{color}" stroke-width="3" />'
@@ -200,9 +213,7 @@ with ui.splitter() as splitter:
                     callback=lambda: degas_timer_function(datetime.now()),
                     active=False,
                 )
-                btn_cancel = ui.button(
-                    "Cancel", on_click=lambda: degas_cancel()
-                )
+                btn_cancel = ui.button("Cancel", on_click=lambda: degas_cancel())
     with splitter.after:
         ui.label("Camera Controls")
         with ui.row():
