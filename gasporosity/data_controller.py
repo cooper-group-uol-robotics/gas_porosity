@@ -1,3 +1,4 @@
+import os.path
 from .classes.camera import FlirCamera
 from .classes.arduino import Arduino, readThread
 import numpy as np
@@ -7,7 +8,7 @@ import math
 import threading
 from .classes.pheonix_ii import Pheonix
 import time
-
+import os
 
 class DataController:
     def __init__(self) -> None:
@@ -39,9 +40,9 @@ class DataController:
         self._stop_thread(self.read_thread)
         self.arduino.close()
 
-    def start_reading_arduino(self, output):
+    def start_reading_arduino(self, output, output_file_name):
         self.arduino.open()
-        self.read_thread = readThread(self.arduino, self.lock, output)
+        self.read_thread = readThread(self.arduino, self.lock, output, output_file_name)
         self.read_thread.start()
 
     def _stop_thread(self, thread):
@@ -251,6 +252,25 @@ class DataController:
         csvline = csvline[:-1] + "\n"
         with open(path, "a") as file:
             file.write(csvline)
+
+    def create_file(self,file_name):
+        numbers_to_letters = {
+        0: "A",
+        1: "B",
+        2: "C",
+        3: "D",
+        4: "E",
+        5: "F",
+        6: "G",
+        7: "H",
+        }
+        with open(file_name,"w") as file:
+            csv_line = "Timestamp,"
+            for i in range(12):
+                for j in range(8):
+                    csv_line = csv_line + f"{i + 1}{numbers_to_letters[j]},"
+            file.write(csv_line + "\n")
+            
 
     def cleanup(self):
         self._stop_thread(self.read_thread)
