@@ -21,6 +21,7 @@ class DataController:
         self.lock = threading.Lock()
         self.pheonix = Pheonix()
         self.cancel = False
+        self.degas_done = False
 
     def set_state(self, state):
         self.state = state
@@ -47,9 +48,9 @@ class DataController:
         thread.stop()
         thread.join()
 
-    def _wait(self,timetowait):
+    def _wait(self, timetowait):
         """
-        waits 5x time to wait and checks if need to cancel 
+        waits 5x time to wait and checks if need to cancel
         """
         for _ in range(timetowait):
             time.sleep(5)
@@ -70,12 +71,12 @@ class DataController:
             self.pheonix.set_temp("02000")
             self._wait(360)
             self.pheonix.off()
+            self.degas_done = True
         except Exception as e:
             return e
 
     def cancel_degas(self):
         self.cancel = True
-
 
     def edit_corners(self, x, y):
         self.corners.append((x, y))
@@ -137,7 +138,7 @@ class DataController:
             # |       |
             # |       |
             # C-------D
-            
+
             # in order to draw the grid accurately with angles
             # calculate the vector AB, AC and CD
             # and cacluate the magnitude of those vectors
