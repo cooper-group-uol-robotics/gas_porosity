@@ -101,7 +101,7 @@ def degas():
 def degas_cancel():
     global degas_start_time
     degas_start_time = None
-    timer.set_text("")
+    timer.set_text("Cancelled")
     degas_timer.deactivate()
     controller.cancel_degas()
 
@@ -109,6 +109,11 @@ def degas_timer_function(timenow):
     global degas_start_time
     timeDiff = timenow - degas_start_time
     timer.set_text(str(timeDiff))
+    if controller.degas_done:
+        timer.set_text("Degas Done")
+        degas_timer.deactivate()
+        controller.degas_done = False
+        degas_start_time = None
 
 
 ################### IMAGE UPDATING ######################
