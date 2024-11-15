@@ -119,6 +119,12 @@ def degas_timer_function(timenow):
         controller.degas_done = False
         degas_start_time = None
 
+def dose():
+    controller.dose()
+
+def dose_stop():
+    controller.stop_dose()
+
 
 ################### IMAGE UPDATING ######################
 def update_image():
@@ -195,15 +201,19 @@ with ui.splitter() as splitter:
                         "start Listening",
                         on_click=lambda: arduino_on(pres_file_name.text),
                     )
-                    btn_dose = ui.button("dose", on_click=lambda: controller.dose())
+                    btn_dose = ui.button("dose", on_click=lambda: dose())
                     btn_dose.disable()
                     btn_stop_arduino = ui.button(
                         "stop listening", on_click=lambda: arduino_off()
                     )
+                    ui.label("Dosing Cycles: ")
+                    number_of_cycles =ui.select([1,2,3,4,5,6,7,8,9,10],value=7)
+                    btn_dose_stop = ui.button("stop cycling",on_click=lambda: dose_stop())
                     btn_stop_arduino.disable()
                     line_plot = ui.line_plot(
                         n=1, limit=5000, figsize=(10, 5), update_every=5
                     ).with_legend(["pressure"], loc="upper center", ncol=1)
+                    
             with h_splitter.after:
                 with ui.splitter() as v_splitter:
                     with v_splitter.before:
