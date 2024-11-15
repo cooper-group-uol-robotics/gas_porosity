@@ -110,7 +110,7 @@ def degas_timer_function(timenow):
     timeDiff = timenow - degas_start_time
     timer.set_text(str(timeDiff))
     if controller.degas_done:
-        timer.set_text("Degas Done")
+        timer.set_text("Degas Done, Time Taken: " + str(timeDiff))
         degas_timer.deactivate()
         controller.degas_done = False
         degas_start_time = None
