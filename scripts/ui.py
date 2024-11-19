@@ -233,7 +233,7 @@ with ui.splitter() as splitter:
                     text_cycle = ui.label()
                     btn_stop_arduino.disable()
                     line_plot = ui.line_plot(
-                        n=1, limit=5000, figsize=(10, 5), update_every=5
+                        n=1, limit=5000, figsize=(10, 5), update_every=1
                     ).with_legend(["pressure"], loc="upper center", ncol=1)
                     cycle_updater = ui.timer(interval=5, callback=lambda: update_cycle(), active=False)
 
