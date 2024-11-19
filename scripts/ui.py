@@ -42,10 +42,12 @@ def calculate_mask():
     btn_stop_data.enable()
     writer.activate()
 
+
 def stop_data_capture():
     btn_start_data.enable()
     btn_stop_data.disable()
     writer.deactivate()
+
 
 def start_camera():
     """
@@ -125,12 +127,20 @@ def degas_timer_function(timenow):
         controller.degas_done = False
         degas_start_time = None
 
+
 def dose():
     controller.dose()
+    cycle_updater.activate()
+
 
 def dose_stop():
     controller.stop_dose()
+    text_cycle.set_text("")
+    cycle_updater.deactivate()
 
+def update_cycle():
+    cycle = controller.read_cycle()
+    text_cycle.set_text(cycle)
 
 ################### IMAGE UPDATING ######################
 def update_image():
@@ -213,13 +223,19 @@ with ui.splitter() as splitter:
                         "stop listening", on_click=lambda: arduino_off()
                     )
                     ui.label("Dosing Cycles: ")
-                    number_of_cycles =ui.select([1,2,3,4,5,6,7,8,9,10],value=7)
-                    btn_dose_stop = ui.button("stop cycling",on_click=lambda: dose_stop())
+                    number_of_cycles = ui.select(
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], value=7
+                    )
+                    btn_dose_stop = ui.button(
+                        "stop cycling", on_click=lambda: dose_stop()
+                    )
+                    text_cycle = ui.label()
                     btn_stop_arduino.disable()
                     line_plot = ui.line_plot(
                         n=1, limit=5000, figsize=(10, 5), update_every=5
                     ).with_legend(["pressure"], loc="upper center", ncol=1)
-                    
+                    cycle_updater = ui.timer(interval=5, callback=lambda: update_cycle(), active=False)
+
             with h_splitter.after:
                 with ui.splitter() as v_splitter:
                     with v_splitter.before:
