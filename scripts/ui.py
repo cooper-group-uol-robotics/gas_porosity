@@ -149,6 +149,11 @@ def update_cycle():
     cycle = controller.read_cycle()
     text_cycle.set_text(cycle)
 
+def save_image(filename):
+    controller.save_image(filename)
+    ui.notify("Saved")
+    dialog.close()
+
 ################### IMAGE UPDATING ######################
 def update_image():
     """
@@ -303,7 +308,7 @@ with ui.splitter() as splitter:
             btn_focus.disable()
             with ui.dialog() as dialog, ui.card():
                 file_input = ui.input("File Name:",value="CameraCapture")
-                ui.button("Save", on_click=lambda: controller.save_image(file_input.value))
+                ui.button("Save", on_click=lambda: save_image(file_input.value))
             btn_save = ui.button("Save Image", on_click=lambda: dialog.open())
             btn_save.disable()
             
