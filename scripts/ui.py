@@ -3,6 +3,7 @@ from gasporosity.data_controller import DataController
 import signal
 from datetime import datetime
 import threading
+import time
 
 
 class State:
@@ -60,6 +61,7 @@ def start_camera():
         btn_wells.enable()
         btn_probe.enable()
         btn_focus.enable()
+        btn_save.enable()
     except Exception as e:
         ui.notify(e)
 
@@ -104,9 +106,14 @@ def arduino_off():
 def degas():
     thread = threading.Thread(target=controller.degas)
     thread.start()
-    global degas_start_time
-    degas_start_time = datetime.now()
-    degas_timer.activate()
+    time.sleep(1)
+    if thread.is_alive():
+        global degas_start_time
+        degas_start_time = datetime.now()
+        degas_timer.activate()
+    else:
+        ui.notify("Degas Failed, see console for more info")
+
 
 
 def degas_cancel():
@@ -294,6 +301,12 @@ with ui.splitter() as splitter:
             btn_stop_data.disable()
             btn_focus = ui.button("focus", on_click=lambda: controller.focus())
             btn_focus.disable()
+            with ui.dialog() as dialog, ui.card():
+                file_input = ui.input("File Name:",value="CameraCapture")
+                ui.button("Save", on_click=lambda: controller.save_image(file_input.value))
+            btn_save = ui.button("Save Image", on_click=lambda: dialog.open())
+            btn_save.disable()
+            
         with ui.row().classes("w-full border p-4"):
             slider = (
                 ui.slider(min=0, max=20, step=0.1, value=10)

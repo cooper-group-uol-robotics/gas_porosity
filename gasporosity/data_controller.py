@@ -1,4 +1,3 @@
-import os.path
 from .classes.camera import FlirCamera
 from .classes.arduino import Arduino, readThread
 import numpy as np
@@ -8,7 +7,6 @@ import math
 import threading
 from .classes.pheonix_ii import Pheonix
 import time
-import os
 from .classes.threads import StoppableThread
 
 
@@ -243,6 +241,11 @@ class DataController:
     def _convert(self, frame: np.ndarray) -> str:
         _, imencode_image = cv2.imencode(".jpg", frame)
         return base64.b64encode(imencode_image.tobytes()).decode("ASCII")
+
+    def save_image(self, filename):
+        frame = cv2.normalize(self.data, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+        frame = cv2.applyColorMap(frame, cv2.COLORMAP_PLASMA)
+        cv2.imwrite("data/" + filename + ".png",frame)
 
     def get_frame(self):
         # the UI.interactive image class is expecting javascript like information
