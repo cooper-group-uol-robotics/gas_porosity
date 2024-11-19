@@ -3,6 +3,7 @@ from gasporosity.data_controller import DataController
 import signal
 from datetime import datetime
 import threading
+import time
 
 
 class State:
@@ -105,9 +106,14 @@ def arduino_off():
 def degas():
     thread = threading.Thread(target=controller.degas)
     thread.start()
-    global degas_start_time
-    degas_start_time = datetime.now()
-    degas_timer.activate()
+    time.sleep(1)
+    if thread.is_alive():
+        global degas_start_time
+        degas_start_time = datetime.now()
+        degas_timer.activate()
+    else:
+        ui.notify("Degas Failed")
+
 
 
 def degas_cancel():
