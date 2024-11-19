@@ -112,7 +112,7 @@ def degas():
         degas_start_time = datetime.now()
         degas_timer.activate()
     else:
-        ui.notify("Degas Failed")
+        ui.notify("Degas Failed, see console for more info")
 
 
 
