@@ -60,6 +60,7 @@ def start_camera():
         btn_wells.enable()
         btn_probe.enable()
         btn_focus.enable()
+        btn_save.enable()
     except Exception as e:
         ui.notify(e)
 
@@ -294,6 +295,12 @@ with ui.splitter() as splitter:
             btn_stop_data.disable()
             btn_focus = ui.button("focus", on_click=lambda: controller.focus())
             btn_focus.disable()
+            with ui.dialog() as dialog, ui.card():
+                file_input = ui.input("File Name:",value="CameraCapture")
+                ui.button("Save", on_click=lambda: controller.save_image(file_input.value))
+            btn_save = ui.button("Save Image", on_click=lambda: dialog.open())
+            btn_save.disable()
+            
         with ui.row().classes("w-full border p-4"):
             slider = (
                 ui.slider(min=0, max=20, step=0.1, value=10)
