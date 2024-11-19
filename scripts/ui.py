@@ -26,6 +26,8 @@ def start_data_capture():
     """
     calculates mask then starts the data capture
     """
+    global btn_start_data
+    btn_start_data.disable()
     controller.radius = slider.value
     mask_thread = threading.Thread(target=calculate_mask, daemon=True)
     mask_thread.start()
@@ -40,6 +42,10 @@ def calculate_mask():
     btn_stop_data.enable()
     writer.activate()
 
+def stop_data_capture():
+    btn_start_data.enable()
+    btn_stop_data.disable()
+    writer.deactivate()
 
 def start_camera():
     """
@@ -266,7 +272,7 @@ with ui.splitter() as splitter:
             )
             btn_start_data.disable()
             btn_stop_data = ui.button(
-                "Stop data Capture", on_click=lambda: writer.deactivate()
+                "Stop data Capture", on_click=lambda: stop_data_capture()
             )
             btn_stop_data.disable()
             btn_focus = ui.button("focus", on_click=lambda: controller.focus())
