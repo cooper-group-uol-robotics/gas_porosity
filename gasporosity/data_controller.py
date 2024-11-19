@@ -242,6 +242,11 @@ class DataController:
         _, imencode_image = cv2.imencode(".jpg", frame)
         return base64.b64encode(imencode_image.tobytes()).decode("ASCII")
 
+    def save_image(self, filename):
+        frame = cv2.normalize(self.data, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+        frame = cv2.applyColorMap(frame, cv2.COLORMAP_PLASMA)
+        cv2.imwrite("data/" + filename + ".png",frame)
+
     def get_frame(self):
         # the UI.interactive image class is expecting javascript like information
         # base64 images, so we capture our data and convert it to that
