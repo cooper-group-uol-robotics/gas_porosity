@@ -1,6 +1,6 @@
 from serial import Serial
 from .threads import StoppableThread
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 class readThread(StoppableThread):
@@ -10,6 +10,8 @@ class readThread(StoppableThread):
         self.lock = lock
         self.output = output
         self.output_file_name = output_file_name
+        self.last_second = datetime.now()
+        self.smoothing_list = []
 
     def run(self):
         while not self.stopped():
@@ -20,10 +22,17 @@ class readThread(StoppableThread):
                     splitdata = data.split(",")
                     self.arduino.pressure = splitdata[0]
                     self.arduino.dosingStatus = splitdata[1]
+                    y1 = float(self.arduino.pressure)
                     # plot time against pressure
                     now = datetime.now()
-                    y1 = float(self.arduino.pressure)
-                    self.output.push([now], [[y1]])
+                    if now - self.last_second > timedelta(seconds=1):
+                        self.last_second = now
+                        smooth = sum(self.smoothing_list)
+                        smooth = smooth/len(self.smoothing_list)
+                        self.output.push([now], [[smooth]])
+                        self.smoothing_list = []
+                    else:
+                        self.smoothing_list.append(y1)
                     # save values to file
                     with open(self.output_file_name, "a") as file:
                         file.write(f"{now}, {y1} \n")
