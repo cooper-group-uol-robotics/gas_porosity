@@ -229,6 +229,7 @@ with ui.splitter() as splitter:
                     btn_dose_stop = ui.button(
                         "stop cycling", on_click=lambda: dose_stop()
                     )
+                    ui.label("Current Cycle: ")
                     text_cycle = ui.label()
                     btn_stop_arduino.disable()
                     line_plot = ui.line_plot(
