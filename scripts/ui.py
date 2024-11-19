@@ -138,7 +138,7 @@ def degas_timer_function(timenow):
 def dose():
     controller.dose()
     cycle_updater.activate()
-
+    auto_stop_timer.activate()
 
 def dose_stop():
     controller.stop_dose()
@@ -153,6 +153,13 @@ def save_image(filename):
     controller.save_image(filename)
     ui.notify("Saved")
     dialog.close()
+
+def check_done():
+    if not controller.dose_thread.is_alive():
+        stop_data_capture()
+        arduino_off()
+        auto_stop_timer.deactivate()
+        
 
 ################### IMAGE UPDATING ######################
 def update_image():
@@ -327,6 +334,7 @@ with ui.splitter() as splitter:
             ),
             active=False,
         )
+        auto_stop_timer = ui.timer(interval=2000,callback=lambda: check_done(),active=False)
 
 
 ui.run()
