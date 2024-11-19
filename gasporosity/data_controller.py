@@ -1,4 +1,3 @@
-import os.path
 from .classes.camera import FlirCamera
 from .classes.arduino import Arduino, readThread
 import numpy as np
@@ -8,7 +7,6 @@ import math
 import threading
 from .classes.pheonix_ii import Pheonix
 import time
-import os
 from .classes.threads import StoppableThread
 
 
