@@ -35,7 +35,7 @@ class DoseThread(StoppableThread):
                 else:
                     count += 5
                     
-            if self.cycle > self.cycles:
+            if self.cycle >= self.cycles:
                 self.stop()
             time.sleep(5)
 
@@ -55,6 +55,9 @@ class DataController:
         self.degas_done = False
         self.dosing_cycles = 7
         self.cycle = 0
+
+    def read_cycle(self):
+        return self.dose_thread.cycle
 
     def set_state(self, state):
         self.state = state
