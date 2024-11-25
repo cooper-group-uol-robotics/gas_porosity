@@ -33,7 +33,8 @@ def calculate_porus(csv, normalize="12H"):
             continue
         integrals = []
         for peak in peaks:
-            integrals.append(integrate.trapezoid(normalized[peak:peak+300],data["Timestamp"][peak:peak + 300]))
+            integrals.append(integrate.trapezoid(normalized[peak-30:peak+300],data["Timestamp"][peak-30:peak + 300]))
+            fig.add_annotation(text=f"{integrals[-1]:.2f}",x=data["Timestamp"][peak]+20,y=normalized[peak], showarrow=False)
         n_peaks_dict[column] = len(peaks)
         integral_dict[column] = integrals
         magnitude_dict[column] = sum([normalized[i] for i in peaks])
@@ -46,6 +47,7 @@ def calculate_porus(csv, normalize="12H"):
                 name=f"{column} peaks",
             )
         )
+        
     fig.show()
     print(n_peaks_dict)
     print(magnitude_dict)
