@@ -55,6 +55,12 @@ class DataController:
         self.cycle = 0
         self.well_count_x = 12
         self.well_count_y = 8
+        
+    def set_well_count(self,x=None,y=None):
+        if x is None:
+            self.well_count_y = y
+        elif y is None:
+            self.well_count_x = x
 
     def read_cycle(self):
         return self.dose_thread.cycle
