@@ -18,6 +18,7 @@ def calculate_porus(csv, normalize="12H"):
         if column == "Timestamp":
             continue
         normalized = data[column] - data[normalize]
+        normalized = normalized + abs(min(normalized))
         fig.add_trace(
             go.Scatter(
                 x=data["Timestamp"],
@@ -26,7 +27,7 @@ def calculate_porus(csv, normalize="12H"):
                 name=column,
             )
         )
-        peaks = signal.find_peaks(normalized, height=0.15, distance=200)[0]
+        peaks = signal.find_peaks(normalized, height=0.25, distance=200)[0]
         
         if len(peaks) == 0:
             print(f"No peaks found for {column}")
@@ -34,7 +35,9 @@ def calculate_porus(csv, normalize="12H"):
         integrals = []
         for peak in peaks:
             integrals.append(integrate.trapezoid(normalized[peak-30:peak+300],data["Timestamp"][peak-30:peak + 300]))
+            #minus the square
             fig.add_annotation(text=f"{integrals[-1]:.2f}",x=data["Timestamp"][peak],y=normalized[peak], showarrow=True)
+        
         n_peaks_dict[column] = len(peaks)
         integral_dict[column] = integrals
         magnitude_dict[column] = sum([normalized[i] for i in peaks])
