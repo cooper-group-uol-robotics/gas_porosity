@@ -115,7 +115,6 @@ def degas():
         ui.notify("Degas Failed, see console for more info")
 
 
-
 def degas_cancel():
     global degas_start_time
     degas_start_time = None
@@ -140,26 +139,30 @@ def dose():
     cycle_updater.activate()
     auto_stop_timer.activate()
 
+
 def dose_stop():
     controller.stop_dose()
     text_cycle.set_text("")
     cycle_updater.deactivate()
 
+
 def update_cycle():
     cycle = controller.read_cycle()
     text_cycle.set_text(cycle)
+
 
 def save_image(filename):
     controller.save_image(filename)
     ui.notify("Saved")
     dialog.close()
 
+
 def check_done():
     if not controller.dose_thread.is_alive():
         stop_data_capture()
         arduino_off()
         auto_stop_timer.deactivate()
-        
+
 
 ################### IMAGE UPDATING ######################
 def update_image():
@@ -254,7 +257,9 @@ with ui.splitter() as splitter:
                     line_plot = ui.line_plot(
                         n=1, limit=5000, figsize=(10, 5), update_every=1
                     ).with_legend(["pressure"], loc="upper center", ncol=1)
-                    cycle_updater = ui.timer(interval=5, callback=lambda: update_cycle(), active=False)
+                    cycle_updater = ui.timer(
+                        interval=5, callback=lambda: update_cycle(), active=False
+                    )
 
             with h_splitter.after:
                 with ui.splitter() as v_splitter:
@@ -314,18 +319,32 @@ with ui.splitter() as splitter:
             btn_focus = ui.button("focus", on_click=lambda: controller.focus())
             btn_focus.disable()
             with ui.dialog() as dialog, ui.card():
-                file_input = ui.input("File Name:",value="CameraCapture")
+                file_input = ui.input("File Name:", value="CameraCapture")
                 ui.button("Save", on_click=lambda: save_image(file_input.value))
             btn_save = ui.button("Save Image", on_click=lambda: dialog.open())
             btn_save.disable()
-            
+
         with ui.row().classes("w-full border p-4"):
+            ui.label("Well Size")
             slider = (
                 ui.slider(min=0, max=20, step=0.1, value=10)
                 .props("label-always")
                 .on("update:model-value", throttle=1.0)
             )
         video_image = ui.interactive_image(cross="green", on_mouse=mouse_handler)
+        with ui.row().classes("w-full border p-4"):
+            ui.label("Number of X Wells")
+            slider_x_wells = (
+                ui.slider(min=4, max=12, step=1, value=12,on_change=lambda: controller.set_well_count(x=slider_x_wells.value))
+                .props("label-always")
+                .on("update:model-value", throttle=1.0)
+            )
+            ui.label("Number of Y Wells")
+            slider_y_wells = (
+                ui.slider(min=4, max=8, step=1, value=8,on_change=lambda: controller.set_well_count(y=slider_y_wells.value))
+                .props("label-always")
+                .on("update:model-value", throttle=1.0)
+            )
         ui.timer(interval=0.1, callback=lambda: update_image())
         writer = ui.timer(
             interval=1,
@@ -334,7 +353,9 @@ with ui.splitter() as splitter:
             ),
             active=False,
         )
-        auto_stop_timer = ui.timer(interval=2000,callback=lambda: check_done(),active=False)
+        auto_stop_timer = ui.timer(
+            interval=2000, callback=lambda: check_done(), active=False
+        )
 
 
 ui.run()
