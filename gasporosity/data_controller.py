@@ -53,6 +53,14 @@ class DataController:
         self.degas_done = False
         self.dosing_cycles = 7
         self.cycle = 0
+        self.well_count_x = 12
+        self.well_count_y = 8
+        
+    def set_well_count(self,x=None,y=None):
+        if x is None:
+            self.well_count_y = y
+        elif y is None:
+            self.well_count_x = x
 
     def read_cycle(self):
         return self.dose_thread.cycle
@@ -131,6 +139,7 @@ class DataController:
             self.corners.pop(swap)
 
         if len(self.corners) == 4:
+
             topleft = []
             topright = []
             bottomleft = []
@@ -187,36 +196,36 @@ class DataController:
             vectA = ((bottomright[0] - bottomleft[0]), (bottomright[1] - bottomleft[1]))
             magA = math.sqrt(vectA[0] * vectA[0] + vectA[1] * vectA[1])
             unit_vectA = (vectA[0] / magA, vectA[1] / magA)
-            A_well_dist = magA / 11
+            A_well_dist = magA / (self.well_count_x -1)
 
             # AB
             vectC = ((topright[0] - topleft[0]), (topright[1] - topleft[1]))
             magC = math.sqrt(vectC[0] * vectC[0] + vectC[1] * vectC[1])
             unit_vectC = (vectC[0] / magC, vectC[1] / magC)
-            C_well_dist = magC / 11
+            C_well_dist = magC / (self.well_count_x -1)
 
             # AC
             vectB = ((bottomleft[0] - topleft[0]), (bottomleft[1] - topleft[1]))
             magB = math.sqrt(vectB[0] * vectB[0] + vectB[1] * vectB[1])
             unit_vectB = (vectB[0] / magB, vectB[1] / magB)
-            B_well_dist = magB / 7
+            B_well_dist = magB / (self.well_count_y -1)
 
             # for each well in the well plate find a center point
-            for x in range(12):
+            for x in range(self.well_count_x):
                 row = []
-                for y in range(8):
+                for y in range(self.well_count_y):
                     # point = top left point + components of AB and CD depending on how far down AC we are
                     pointx = (
                         topleft[0]
-                        + (y / 7) * (x * A_well_dist * unit_vectA[0])
+                        + (y / (self.well_count_y -1)) * (x * A_well_dist * unit_vectA[0])
                         + y * B_well_dist * unit_vectB[0]
-                        + (1 - y / 7) * (x * C_well_dist * unit_vectC[0])
+                        + (1 - y / (self.well_count_y -1)) * (x * C_well_dist * unit_vectC[0])
                     )
                     pointy = (
                         topleft[1]
-                        + (y / 7) * (x * A_well_dist * unit_vectA[1])
+                        + (y / (self.well_count_y -1)) * (x * A_well_dist * unit_vectA[1])
                         + y * B_well_dist * unit_vectB[1]
-                        + (1 - y / 7) * (x * C_well_dist * unit_vectC[1])
+                        + (1 - y / (self.well_count_y -1)) * (x * C_well_dist * unit_vectC[1])
                     )
                     row.append([pointx, pointy])
                 self.coords.append(row)
@@ -308,8 +317,8 @@ class DataController:
         }
         with open(file_name, "w") as file:
             csv_line = "Timestamp,"
-            for i in range(12):
-                for j in range(8):
+            for i in range(self.well_count_x):
+                for j in range(self.well_count_y):
                     csv_line = csv_line + f"{i + 1}{numbers_to_letters[j]},"
             file.write(csv_line + "\n")
 
