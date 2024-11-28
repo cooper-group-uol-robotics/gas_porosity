@@ -66,8 +66,8 @@ class DataController:
     def focus(self):
         self.video_capture.auto_focus()
 
-    def dose(self):
-        self.dose_thread = DoseThread(self.arduino, self.dosing_cycles)
+    def dose(self,cycles):
+        self.dose_thread = DoseThread(self.arduino,cycles)
         self.dose_thread.start()
 
     def stop_dose(self):
