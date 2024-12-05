@@ -274,6 +274,7 @@ class DataController:
 
     def calculate_mask(self):
         # for each center point
+        self.mask = []
         print("calculating")
         for _ in self.coords:
             for value in _:
