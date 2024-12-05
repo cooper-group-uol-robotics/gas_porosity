@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import datetime
-
+import sys
 
 def calculate_porus(csv, normalize="12H"):
     data = pd.read_csv(csv)
@@ -53,10 +53,10 @@ def calculate_porus(csv, normalize="12H"):
         
     fig.show()
     print(n_peaks_dict)
-    print(magnitude_dict)
     print(integral_dict)
     
 
 
 if __name__ == "__main__":
-    calculate_porus("RC_Test4T.csv")
+    #calculate_porus("data/5_test_05122024_T.csv",normalize="11D")
+    calculate_porus(str(sys.argv[1]),str(sys.argv[2]))
