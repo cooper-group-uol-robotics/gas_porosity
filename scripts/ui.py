@@ -355,7 +355,7 @@ with ui.splitter() as splitter:
             active=False,
         )
         auto_stop_timer = ui.timer(
-            interval=200, callback=lambda: check_done(), active=False
+            interval=500, callback=lambda: check_done(), active=False
         )
 
 
