@@ -8,6 +8,7 @@ import threading
 from .classes.pheonix_ii import Pheonix
 import time
 from .classes.threads import StoppableThread
+import datetime
 
 
 class DoseThread(StoppableThread):
@@ -55,6 +56,8 @@ class DataController:
         self.cycle = 0
         self.well_count_x = 12
         self.well_count_y = 8
+        self.video_writer_name = datetime.datetime.today().strftime("%d%m%y_%H%M")
+        self.video_writer = cv2.VideoWriter(f"{self.video_writer_name}.avi",-1,20,(640,480))
         
     def set_well_count(self,x=None,y=None):
         if x is None:
@@ -267,6 +270,11 @@ class DataController:
         self.data = self.video_capture.capture_data()
         frame = cv2.normalize(self.data, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
         frame = cv2.applyColorMap(frame, cv2.COLORMAP_PLASMA)
+        if self.dose_thread.is_alive():
+            if self.cycle != self.dose_thread.cycle:
+                self.cycle = self.dose_thread.cycle
+                self.video_writer = cv2.VideoWriter(f"{self.video_writer_name}_cycle_{self.cycle}.avi",-1,20,(640,480))
+            self.video_writer.write(frame)
         if frame is None:
             return placeholder
         # `convert` is a CPU-intensive function, so we run it in a separate process to avoid blocking the event loop and GIL.
