@@ -108,7 +108,7 @@ class DataController:
 
     def degas(self):
         self.pheonix.open()
-        self.pheonix.set_temp("08000")
+        self.pheonix.set_temp("10000")
         self.pheonix.on()
         try:
             self._wait(5760)
