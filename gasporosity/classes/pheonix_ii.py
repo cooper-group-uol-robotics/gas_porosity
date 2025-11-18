@@ -1,6 +1,6 @@
 from serial import Serial
 
-class Pheonix:
+class Chiller:
     def __init__(self) -> None:
         self.ser = Serial(None, timeout=0.5)
         self.ser.port = "COM5"
@@ -45,7 +45,7 @@ class Pheonix:
         self.ser.close()
 
 if __name__ == "__main__":
-    pheonix = Pheonix()
+    pheonix = Chiller()
     pheonix.open()
     #thread = threading.Thread(target=pheonix.reads)
     #thread.start()
