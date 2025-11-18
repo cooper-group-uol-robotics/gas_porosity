@@ -5,7 +5,7 @@ import cv2
 import base64
 import math
 import threading
-from .classes.pheonix_ii import Chiller
+from .classes.pheonix_ii import Circulator
 import time
 from .classes.threads import StoppableThread
 import datetime
@@ -49,7 +49,7 @@ class DataController:
         self.radius = 0
         self.arduino = Arduino()
         self.lock = threading.Lock()
-        self.pheonix = Chiller()
+        self.pheonix = Circulator()
         self.cancel = False
         self.degas_done = False
         self.dosing_cycles = 7
