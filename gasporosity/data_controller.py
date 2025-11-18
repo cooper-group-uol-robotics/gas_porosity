@@ -49,7 +49,7 @@ class DataController:
         self.radius = 0
         self.arduino = Arduino()
         self.lock = threading.Lock()
-        self.pheonix = Circulator()
+        self.circulator = Circulator()
         self.cancel = False
         self.degas_done = False
         self.dosing_cycles = 7
@@ -106,21 +106,21 @@ class DataController:
             time.sleep(5)
             if self.cancel:
                 self.cancel = False
-                self.pheonix.off()
-                self.pheonix.close()
+                self.circulator.off()
+                self.circulator.close()
                 raise "canceled"
 
     def degas(self):
-        self.pheonix.open()
-        self.pheonix.set_temp("08000")
-        self.pheonix.on()
+        self.circulator.open()
+        self.circulator.set_temp("08000")
+        self.circulator.on()
         try:
             self._wait(5760)
-            self.pheonix.set_temp("-1000")
+            self.circulator.set_temp("-1000")
             self._wait(360)
-            self.pheonix.set_temp("02000")
+            self.circulator.set_temp("02000")
             self._wait(360)
-            self.pheonix.off()
+            self.circulator.off()
             self.degas_done = True
         except Exception as e:
             return e
