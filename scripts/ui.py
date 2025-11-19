@@ -159,6 +159,10 @@ def save_image(filename):
 
 def check_done():
     if not controller.dose_thread.is_alive():
+        global dosing_done_waiting
+        if not dosing_done_waiting:
+            dosing_done_waiting = True
+            return
         text_cycle.set_text("Dosing Complete")
         stop_data_capture()
         arduino_off()
@@ -230,6 +234,7 @@ state = State(
     {0: controller.probe, 1: controller.edit_corners, 2: controller.edit_wells}
 )
 global btn_stop_data
+dosing_done_waiting = False
 with ui.splitter() as splitter:
     with splitter.before:
         with ui.splitter(horizontal=True) as h_splitter:

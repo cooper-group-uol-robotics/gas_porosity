@@ -6,20 +6,20 @@ class Circulator:
         self.ser.port = "COM5"
 
     def on(self):
-        self.write(b"GO\r")
+        self.write(b"out_mode_05 1\r")
         print(self.read())
     
     def off(self):
-        self.write(b"ST\r")
+        self.write(b"out_mode_05 0\r")
         print(self.read())
 
     def set_temp(self,temp):
-        bytes_to_write = f"S  {temp}\r" 
+        bytes_to_write = f"out_sp_00{temp}\r"
         self.write(bytes_to_write.encode())
         print(self.read())
     
     def get_temp(self):
-        self.write(b"I\r")
+        self.write(b"in_pv_00\r")
         temp = self.read()
         return temp
 
