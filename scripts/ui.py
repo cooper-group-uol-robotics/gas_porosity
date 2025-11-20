@@ -105,9 +105,9 @@ def arduino_off():
 
 def degas(heat, cool, stab,heat_time,cool_time,stab_time):
     # minutes * 60 for seconds / 5 for _wait function 
-    heat_time = heat_time * 12
-    cool_time = cool_time * 12
-    stab_time = stab_time * 12
+    heat_time = int(heat_time * 12)
+    cool_time = int(cool_time * 12)
+    stab_time = int(stab_time * 12)
     thread = threading.Thread(
         target=controller.degas, args=[heat,cool,stab,heat_time,cool_time,stab_time]
     )
@@ -306,7 +306,7 @@ with ui.splitter() as splitter:
                             with v_splitter_2.after:
                                 degas_heat_temp_input = ui.number(
                                     label="Degas Heat Temp",
-                                    value=80,
+                                    value=100,
                                 )
 
                                 degas_cool_temp_input = ui.number(
@@ -321,15 +321,15 @@ with ui.splitter() as splitter:
                         with ui.splitter() as v_splitter2:
                             with v_splitter2.before:
                                 degas_heat_time_input = ui.number(
-                                    label="Degas Heat wait time (minutes)",
+                                    label="Degas Heat time (minutes)",
                                     value=480,
                                 )
                                 degas_cool_time_input = ui.number(
-                                    label="Degas Heat wait time (minutes)",
+                                    label="Degas cool time (minutes)",
                                     value=60,
                                 )
                                 degas_stabalise_time_input = ui.number(
-                                    label="Degas stabilise wait time (minutes)",
+                                    label="Degas stabilise time (minutes)",
                                     value=60,
                                 )
                             with v_splitter2.after:
