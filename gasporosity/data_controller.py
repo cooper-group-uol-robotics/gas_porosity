@@ -27,8 +27,6 @@ class DataController:
         self.cycle = 0
         self.well_count_x = 12
         self.well_count_y = 8
-        self.video_writer_name = datetime.datetime.today().strftime("%d%m%y_%H%M")
-        self.video_writer = cv2.VideoWriter(f"{self.video_writer_name}.avi",-1,20,(640,480))
         self.dose_thread = None
 
         
