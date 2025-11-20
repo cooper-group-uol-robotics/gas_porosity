@@ -103,8 +103,14 @@ def arduino_off():
         ui.notify(e)
 
 
-def degas():
-    thread = threading.Thread(target=controller.degas)
+def degas(heat, cool, stab,heat_time,cool_time,stab_time):
+    # minutes * 60 for seconds / 5 for _wait function 
+    heat_time = int(heat_time * 12)
+    cool_time = int(cool_time * 12)
+    stab_time = int(stab_time * 12)
+    thread = threading.Thread(
+        target=controller.degas, args=[heat,cool,stab,heat_time,cool_time,stab_time]
+    )
     thread.start()
     time.sleep(1)
     if thread.is_alive():
@@ -159,6 +165,10 @@ def save_image(filename):
 
 def check_done():
     if not controller.dose_thread.is_alive():
+        global dosing_done_waiting
+        if not dosing_done_waiting:
+            dosing_done_waiting = True
+            return
         text_cycle.set_text("Dosing Complete")
         stop_data_capture()
         arduino_off()
@@ -230,6 +240,7 @@ state = State(
     {0: controller.probe, 1: controller.edit_corners, 2: controller.edit_wells}
 )
 global btn_stop_data
+dosing_done_waiting = False
 with ui.splitter() as splitter:
     with splitter.before:
         with ui.splitter(horizontal=True) as h_splitter:
@@ -265,38 +276,82 @@ with ui.splitter() as splitter:
             with h_splitter.after:
                 with ui.splitter() as v_splitter:
                     with v_splitter.before:
-                        ui.label("Pheonix Controls")
-                        btn_degas = ui.button("Degas", on_click=lambda: degas())
-                        ui.label("Degas Timer:")
-                        timer = ui.label()
-                        degas_timer = ui.timer(
-                            1,
-                            callback=lambda: degas_timer_function(datetime.now()),
-                            active=False,
-                        )
-                        btn_cancel = ui.button(
-                            "Cancel", on_click=lambda: degas_cancel()
-                        )
+                        with ui.splitter() as v_splitter_2:
+                            with v_splitter_2.before:
+                                ui.label("Circulator Controls")
+
+                                btn_degas = ui.button(
+                                    "Degas",
+                                    on_click=lambda: degas(
+                                        degas_heat_temp_input.value,
+                                        degas_cool_temp_input.value,
+                                        degas_stabalise_temp_input.value,
+                                        degas_heat_time_input.value,
+                                        degas_cool_time_input.value,
+                                        degas_stabalise_time_input.value
+                                    ),
+                                )
+                                ui.label("Degas Timer:")
+                                timer = ui.label()
+                                degas_timer = ui.timer(
+                                    1,
+                                    callback=lambda: degas_timer_function(
+                                        datetime.now()
+                                    ),
+                                    active=False,
+                                )
+                                btn_cancel = ui.button(
+                                    "Cancel", on_click=lambda: degas_cancel()
+                                )
+                            with v_splitter_2.after:
+                                degas_heat_temp_input = ui.number(
+                                    label="Degas Heat Temp",
+                                    value=100,
+                                )
+
+                                degas_cool_temp_input = ui.number(
+                                    label="Degas cool Temp",
+                                    value=-10,
+                                )
+                                degas_stabalise_temp_input = ui.number(
+                                    label="Degas stabilise Temp",
+                                    value=20,
+                                )
                     with v_splitter.after:
-                        ui.label("File Config")
-                        temp_file_name_input = ui.input(
-                            label="Temp File Name", value="Temperature"
-                        )
-                        temp_file_name = ui.label().bind_text_from(
-                            temp_file_name_input,
-                            "value",
-                            backward=lambda x: "data/" + x + ".csv",
-                        )
-                        pres_file_name_input = ui.input(
-                            label="Pressure File Name", value="Pressure"
-                        )
-                        temp_file_name.set_visibility(False)
-                        pres_file_name = ui.label().bind_text_from(
-                            pres_file_name_input,
-                            "value",
-                            backward=lambda x: "data/" + x + ".csv",
-                        )
-                        pres_file_name.set_visibility(False)
+                        with ui.splitter() as v_splitter2:
+                            with v_splitter2.before:
+                                degas_heat_time_input = ui.number(
+                                    label="Degas Heat time (minutes)",
+                                    value=480,
+                                )
+                                degas_cool_time_input = ui.number(
+                                    label="Degas cool time (minutes)",
+                                    value=60,
+                                )
+                                degas_stabalise_time_input = ui.number(
+                                    label="Degas stabilise time (minutes)",
+                                    value=60,
+                                )
+                            with v_splitter2.after:
+                                ui.label("File Config")
+                                temp_file_name_input = ui.input(
+                                    label="Temp File Name", value="Temperature"
+                                )
+                                temp_file_name = ui.label().bind_text_from(
+                                    temp_file_name_input,
+                                    "value",
+                                    backward=lambda x: "data/" + x + ".csv",
+                                )
+                                pres_file_name_input = ui.input(
+                                    label="Pressure File Name", value="Pressure"
+                                )
+                                temp_file_name.set_visibility(False)
+                                pres_file_name = ui.label().bind_text_from(
+                                    pres_file_name_input,
+                                    "value",
+                                    backward=lambda x: "data/" + x + ".csv",
+                                )
+                                pres_file_name.set_visibility(False)
     with splitter.after:
         ui.label("Camera Controls")
         with ui.row():
@@ -336,13 +391,25 @@ with ui.splitter() as splitter:
         with ui.row().classes("w-full border p-4"):
             ui.label("Number of X Wells")
             slider_x_wells = (
-                ui.slider(min=4, max=12, step=1, value=12,on_change=lambda: controller.set_well_count(x=slider_x_wells.value))
+                ui.slider(
+                    min=4,
+                    max=12,
+                    step=1,
+                    value=12,
+                    on_change=lambda: controller.set_well_count(x=slider_x_wells.value),
+                )
                 .props("label-always")
                 .on("update:model-value", throttle=1.0)
             )
             ui.label("Number of Y Wells")
             slider_y_wells = (
-                ui.slider(min=4, max=8, step=1, value=8,on_change=lambda: controller.set_well_count(y=slider_y_wells.value))
+                ui.slider(
+                    min=4,
+                    max=8,
+                    step=1,
+                    value=8,
+                    on_change=lambda: controller.set_well_count(y=slider_y_wells.value),
+                )
                 .props("label-always")
                 .on("update:model-value", throttle=1.0)
             )
