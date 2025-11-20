@@ -13,7 +13,10 @@ dependencies = [
     "opencv-python>=4.10.0.84",
     "pyserial>=3.5",
     "spinnaker-python > 0",
-    "matplotlib>=3.9.2"
+    "matplotlib>=3.9.2",
+    "pandas",
+    "scipy",
+    "plotly"
 ]
 description = "Gas Porosity testing with thermal camera"
 readme = "README.md"
