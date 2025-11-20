@@ -3,23 +3,23 @@ from serial import Serial
 class Circulator:
     def __init__(self) -> None:
         self.ser = Serial(None, timeout=0.5)
-        self.ser.port = "COM5"
+        self.ser.port = "COM8"
 
     def on(self):
-        self.write(b"GO\r")
+        self.write(b"out_mode_05 1\r")
         print(self.read())
     
     def off(self):
-        self.write(b"ST\r")
+        self.write(b"out_mode_05 0\r")
         print(self.read())
 
     def set_temp(self,temp):
-        bytes_to_write = f"S  {temp}\r" 
+        bytes_to_write = f"out_sp_00 {temp}\r"
         self.write(bytes_to_write.encode())
         print(self.read())
     
     def get_temp(self):
-        self.write(b"I\r")
+        self.write(b"in_pv_00\r")
         temp = self.read()
         return temp
 
@@ -46,23 +46,27 @@ class Circulator:
 
 if __name__ == "__main__":
     pheonix = Circulator()
+
     pheonix.open()
+    pheonix.on()
     #thread = threading.Thread(target=pheonix.reads)
     #thread.start()
-    pheonix.set_temp("08000")
+    pheonix.set_temp("-10\r")
+    pheonix.write(b"in_sp_00\r")
     print(pheonix.read())
-    pheonix.write(b"S\r")
-    print(pheonix.read())
+    print(pheonix.get_temp())
     input()
-    pheonix.write(b"S  -1000\r")
+    pheonix.set_temp("80\r")
+    pheonix.write(b"in_sp_00\r")
     print(pheonix.read())
-    pheonix.write(b"S\r")
-    print(pheonix.read())
+    print(pheonix.get_temp())
     input()
-    pheonix.write(b"S  02000\r")
+    pheonix.set_temp("20\r")
+    pheonix.write(b"in_sp_00\r")
     print(pheonix.read())
-    pheonix.write(b"S\r")
-    print(pheonix.read())
+    print(pheonix.get_temp())
     input()
+    pheonix.off()
     pheonix.close()
+
     
