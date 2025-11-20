@@ -27,8 +27,6 @@ class DataController:
         self.cycle = 0
         self.well_count_x = 12
         self.well_count_y = 8
-        self.video_writer_name = datetime.datetime.today().strftime("%d%m%y_%H%M")
-        self.video_writer = cv2.VideoWriter(f"{self.video_writer_name}.avi",-1,20,(640,480))
         self.dose_thread = None
 
         
@@ -78,17 +76,17 @@ class DataController:
                 self.circulator.close()
                 raise "canceled"
 
-    def degas(self):
+    def degas(self,heat,cool,stab,heat_wait,cool_wait,stab_wait):
         self.circulator.open()
-        self.circulator.set_temp("08000")
+        self.circulator.set_temp(heat)
         self.circulator.on()
         try:
             #TODO: custom wait times/temps
-            self._wait(5760)
-            self.circulator.set_temp("-1000")
-            self._wait(360)
-            self.circulator.set_temp("02000")
-            self._wait(360)
+            self._wait(heat_wait)
+            self.circulator.set_temp(cool)
+            self._wait(cool_wait)
+            self.circulator.set_temp(stab)
+            self._wait(stab_wait)
             self.circulator.off()
             self.degas_done = True
         except Exception as e:
