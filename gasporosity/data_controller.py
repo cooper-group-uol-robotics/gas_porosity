@@ -88,9 +88,10 @@ class DataController:
             self.circulator.set_temp(stab)
             self._wait(stab_wait)
             self.circulator.off()
+            self.circulator.close()
             self.degas_done = True
         except Exception as e:
-            return e
+            raise e
 
     def cancel_degas(self):
         self.cancel = True
