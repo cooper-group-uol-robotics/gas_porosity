@@ -78,11 +78,12 @@ def mouse_handler(e: events.MouseEventArguments):
     ret = function(x, y)
     if len(controller.coords) > 0:
         btn_start_data.enable()
+        video_save_toggle.enable()
     if ret is not None:
         ui.notify(ret)
     return ret
 
-
+    
 def arduino_on(file_name):
     try:
         controller.start_reading_arduino(line_plot, file_name)
@@ -364,6 +365,14 @@ with ui.splitter() as splitter:
             btn_wells.disable()
             btn_probe = ui.button("Probe", on_click=lambda: state.set_state(0))
             btn_probe.disable()
+            btn_focus = ui.button("focus", on_click=lambda: controller.focus())
+            btn_focus.disable()
+            with ui.dialog() as dialog, ui.card():
+                file_input = ui.input("File Name:", value="CameraCapture")
+                ui.button("Save", on_click=lambda: save_image(file_input.value))
+            btn_save = ui.button("Save Image", on_click=lambda: dialog.open())
+            btn_save.disable()
+        with ui.row():
             btn_start_data = ui.button(
                 "Start data Capture", on_click=lambda: start_data_capture()
             )
@@ -372,15 +381,9 @@ with ui.splitter() as splitter:
                 "Stop data Capture", on_click=lambda: stop_data_capture()
             )
             btn_stop_data.disable()
-            btn_focus = ui.button("focus", on_click=lambda: controller.focus())
-            btn_focus.disable()
-            with ui.dialog() as dialog, ui.card():
-                file_input = ui.input("File Name:", value="CameraCapture")
-                ui.button("Save", on_click=lambda: save_image(file_input.value))
-            btn_save = ui.button("Save Image", on_click=lambda: dialog.open())
-            btn_save.disable()
             ui.label("Save video:")
             video_save_toggle = ui.toggle(["On","Off"],value="Off",on_change=lambda: controller.set_save_video(video_save_toggle.value))
+            video_save_toggle.disable()
             print(video_save_toggle.value)
 
         with ui.row().classes("w-full border p-4"):
