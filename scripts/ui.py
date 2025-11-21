@@ -379,6 +379,9 @@ with ui.splitter() as splitter:
                 ui.button("Save", on_click=lambda: save_image(file_input.value))
             btn_save = ui.button("Save Image", on_click=lambda: dialog.open())
             btn_save.disable()
+            ui.label("Save video:")
+            video_save_toggle = ui.toggle(["On","Off"],value="Off",on_change=lambda: controller.set_save_video(video_save_toggle.value))
+            print(video_save_toggle.value)
 
         with ui.row().classes("w-full border p-4"):
             ui.label("Well Size")

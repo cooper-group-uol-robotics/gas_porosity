@@ -27,10 +27,22 @@ class DataController:
         self.cycle = 0
         self.well_count_x = 12
         self.well_count_y = 8
+        self.video_writer_name = datetime.datetime.today().strftime("%d%m%y_%H%M")
+        self.video_writer = cv2.VideoWriter(f"{self.video_writer_name}.avi",-1,20,(640,480))
         self.dose_thread = None
-
+        self.save_video = True
         
-    # ----------------- UI helpers -----------------
+    def set_save_video(self,set):
+        if set =="On":
+            self.save_video = True
+        else:
+            self.save_video = False
+        
+    def set_well_count(self,x=None,y=None):
+        if x is None:
+            self.well_count_y = y
+        elif y is None:
+            self.well_count_x = x
 
     def read_cycle(self):
         return self.dose_thread.cycle
@@ -41,6 +53,7 @@ class DataController:
     def probe(self, x, y):
         return self.data[y, x]
     
+   
     # ----------------- Arduino -----------------
 
     def dose(self,cycles):
@@ -252,6 +265,11 @@ class DataController:
         self.data = self.video_capture.capture_data()
         frame = cv2.normalize(self.data, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
         frame = cv2.applyColorMap(frame, cv2.COLORMAP_PLASMA)
+        if self.save_video and self.dose_thread is not None and self.dose_thread.is_alive():
+            if self.cycle != self.dose_thread.cycle:
+                self.cycle = self.dose_thread.cycle
+                self.video_writer = cv2.VideoWriter(f"{self.video_writer_name}_cycle_{self.cycle}.avi",-1,20,(640,480))
+            self.video_writer.write(frame)
         if frame is None:
             return placeholder
         # `convert` is a CPU-intensive function, so we run it in a separate process to avoid blocking the event loop and GIL.
