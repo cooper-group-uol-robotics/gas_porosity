@@ -2,16 +2,18 @@ from scipy import signal, integrate
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import plotly.express as px
 import datetime
 import sys
 
-
+MIN = 20
 def calculate_porus(csv,threshold):
     data = pd.read_csv(csv)
     fig = go.Figure()
     n_peaks_dict = {}
     magnitude_dict = {}
     integral_dict = {}
+    peaks_dict = {}
     first_time = datetime.datetime.strptime(data["Timestamp"][0], "%H:%M:%S.%f")
     data= data.drop("Unnamed: 97",axis=1)
     data["Timestamp"] = data["Timestamp"].apply(
@@ -44,6 +46,7 @@ def calculate_porus(csv,threshold):
                 fig.add_annotation(text=f"{integrals[-1]:.2f}",x=data["Timestamp"][peak],y=filtered[peak], showarrow=True)
         
         n_peaks_dict[column] = len(peaks)
+        peaks_dict[column] = peaks
         integral_dict[column] = integrals
         magnitude_dict[column] = sum([filtered[i] for i in peaks])
         fig.add_trace(
@@ -74,17 +77,40 @@ def calculate_porus(csv,threshold):
     cols = 12
     rows = 8
     grid = np.zeros((9,13))
-    peaks_df = pd.DataFrame.from_dict(n_peaks_dict,orient="index")
+    peaks_df_dict = {}
+    for key in peaks_dict.keys():
+        try:
+            first = float(peaks_dict[key][0])
+        except Exception:
+            first = None
+        if first is not None:
+            peaks_df_dict[key] = data[key][first]
+        else:
+            peaks_df_dict[key] = MIN
+    peaks_df = pd.DataFrame.from_dict(peaks_df_dict,orient="index")
+    x_list = [] 
+    y_list = []
+    size_list = []
+    for i, row in peaks_df.iterrows():
+        location = i
+        y = location[:-1]
+        x = location[-1]
+        x_list.append(x)
+        y_list.append(y)
+        size_list.append(10)
+    peaks_df["x"] = x_list
+    peaks_df["y"] = y_list
+    fig2= px.density_heatmap(peaks_df,x="y",y="x",z=0)
     print(peaks_df)
     for key in n_peaks_dict.keys():
         letter = key[-1]
         num = int(key[:-1])
         grid[letters_to_numbers[letter]][num] = n_peaks_dict[key]
     
-    fig2 = go.Figure(data=go.Heatmap(
-    z=grid,
-    colorscale='viridis'
-    ))
+    # fig2 = go.Figure(data=go.Heatmap(
+    # z=grid,
+    # colorscale='viridis'
+    # ))
     
     # --- Add gridlines ---
     shapes = []
@@ -94,7 +120,7 @@ def calculate_porus(csv,threshold):
         shapes.append(dict(
             type="line",
             x0=c - 0.5, x1=c - 0.5,
-            y0=-0.5, y1=rows+1 - 0.5,
+            y0=-0.5, y1=rows - 0.5,
             line=dict(color="white", width=1)
         ))
 
@@ -102,7 +128,7 @@ def calculate_porus(csv,threshold):
     for r in range(rows + 1):
         shapes.append(dict(
             type="line",
-            x0=-0.5, x1=cols+1 - 0.5,
+            x0=-0.5, x1=cols - 0.5,
             y0=r - 0.5, y1=r - 0.5,
             line=dict(color="white", width=1)
         ))
