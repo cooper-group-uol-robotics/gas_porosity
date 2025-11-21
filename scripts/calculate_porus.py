@@ -74,9 +74,10 @@ def calculate_porus(csv,threshold):
             "H": 7,
         }
     
+    #TODO calculate this instead
     cols = 12
     rows = 8
-    grid = np.zeros((9,13))
+    
     peaks_df_dict = {}
     for key in peaks_dict.keys():
         try:
@@ -101,16 +102,6 @@ def calculate_porus(csv,threshold):
     peaks_df["x"] = x_list
     peaks_df["y"] = y_list
     fig2= px.density_heatmap(peaks_df,x="y",y="x",z=0)
-    print(peaks_df)
-    for key in n_peaks_dict.keys():
-        letter = key[-1]
-        num = int(key[:-1])
-        grid[letters_to_numbers[letter]][num] = n_peaks_dict[key]
-    
-    # fig2 = go.Figure(data=go.Heatmap(
-    # z=grid,
-    # colorscale='viridis'
-    # ))
     
     # --- Add gridlines ---
     shapes = []
