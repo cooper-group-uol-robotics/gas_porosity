@@ -5,6 +5,8 @@ from datetime import datetime
 import threading
 import time
 
+from scripts.calculate_porus import calculate_porus
+
 
 class State:
     """
@@ -268,7 +270,7 @@ with ui.splitter() as splitter:
                     text_cycle = ui.label()
                     btn_stop_arduino.disable()
                     line_plot = ui.line_plot(
-                        n=1, limit=5000, figsize=(10, 5), update_every=1
+                        n=1, limit=5000, figsize=(10, 2), update_every=1
                     ).with_legend(["pressure"], loc="upper center", ncol=1)
                     cycle_updater = ui.timer(
                         interval=5, callback=lambda: update_cycle(), active=False
@@ -430,6 +432,35 @@ with ui.splitter() as splitter:
         auto_stop_timer = ui.timer(
             interval=500, callback=lambda: check_done(), active=False
         )
+
+
+ui.label("Data Analysis")
+with ui.row():
+    threshold = ui.number(
+    label="Temperatue Threshold for peak",
+    value=0.1,
+)
+    normalize_well_input = ui.input(
+        label="Normalize Well", value="1A"
+    )
+    normalize_well_text = ui.label().bind_text_from(
+        normalize_well_input,
+        "value",
+        backward=lambda x: "data/" + x + ".csv",
+    )
+    normalize_well_text.set_visibility(False)
+    
+    file_to_run_input = ui.input(
+        label="File Name", value="Temperature"
+    )
+    file_to_run_text = ui.label().bind_text_from(
+        file_to_run_input,
+        "value",
+        backward=lambda x: "data/" + x + ".csv",
+    )
+    file_to_run_text.set_visibility(False)
+    
+    btn_run_script = ui.button("Run analysis", on_click=lambda: calculate_porus(file_to_run_input.value,threshold.value,normalize_well_input.value))
 
 
 ui.run()
