@@ -270,7 +270,7 @@ with ui.splitter() as splitter:
                     text_cycle = ui.label()
                     btn_stop_arduino.disable()
                     line_plot = ui.line_plot(
-                        n=1, limit=5000, figsize=(10, 2), update_every=1
+                        n=1, limit=5000, figsize=(10, 3), update_every=1
                     ).with_legend(["pressure"], loc="upper center", ncol=1)
                     cycle_updater = ui.timer(
                         interval=5, callback=lambda: update_cycle(), active=False
@@ -355,6 +355,33 @@ with ui.splitter() as splitter:
                                     backward=lambda x: "data/" + x + ".csv",
                                 )
                                 pres_file_name.set_visibility(False)
+                ui.label("Data Analysis")
+            with ui.row():
+                threshold = ui.number(
+                label="Temperatue Threshold for peak",
+                value=0.1,
+            )
+                normalize_well_input = ui.input(
+                    label="Normalize Well", value="1A"
+                )
+                normalize_well_text = ui.label().bind_text_from(
+                    normalize_well_input,
+                    "value",
+                    backward=lambda x: "data/" + x + ".csv",
+                )
+                normalize_well_text.set_visibility(False)
+                
+                file_to_run_input = ui.input(
+                    label="File Name", value="Temperature"
+                )
+                file_to_run_text = ui.label().bind_text_from(
+                    file_to_run_input,
+                    "value",
+                    backward=lambda x: "data/" + x + ".csv",
+                )
+                file_to_run_text.set_visibility(False)
+                
+                btn_run_script = ui.button("Run analysis", on_click=lambda: calculate_porus(file_to_run_input.value,threshold.value,normalize_well_input.value))
     with splitter.after:
         ui.label("Camera Controls")
         with ui.row():
@@ -434,33 +461,7 @@ with ui.splitter() as splitter:
         )
 
 
-ui.label("Data Analysis")
-with ui.row():
-    threshold = ui.number(
-    label="Temperatue Threshold for peak",
-    value=0.1,
-)
-    normalize_well_input = ui.input(
-        label="Normalize Well", value="1A"
-    )
-    normalize_well_text = ui.label().bind_text_from(
-        normalize_well_input,
-        "value",
-        backward=lambda x: "data/" + x + ".csv",
-    )
-    normalize_well_text.set_visibility(False)
-    
-    file_to_run_input = ui.input(
-        label="File Name", value="Temperature"
-    )
-    file_to_run_text = ui.label().bind_text_from(
-        file_to_run_input,
-        "value",
-        backward=lambda x: "data/" + x + ".csv",
-    )
-    file_to_run_text.set_visibility(False)
-    
-    btn_run_script = ui.button("Run analysis", on_click=lambda: calculate_porus(file_to_run_input.value,threshold.value,normalize_well_input.value))
+
 
 
 ui.run()
