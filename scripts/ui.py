@@ -4,6 +4,7 @@ import signal
 from datetime import datetime
 import threading
 import time
+import os
 
 from scripts.calculate_porus_Yulin_ui_v2 import calculate_porus
 from scripts.local_file_picker import local_file_picker
@@ -182,6 +183,11 @@ def index():
     async def pick_file():
         result = await local_file_picker('~',multiple=False)
         file_to_run_text.text = result[0]
+        
+    def run_analysis(file_to_run,threshold,normalize_well):
+        calculate_porus(file_to_run,threshold,normalize_well)
+        ui.notify(f"Files for analysis created at: {os.getcwd()}")
+        
     ################### IMAGE UPDATING ######################
     def update_image():
         """
@@ -385,8 +391,7 @@ def index():
                     )
                     
                     
-                    
-                    btn_run_script = ui.button("Run analysis", on_click=lambda: calculate_porus(file_to_run_text.text,threshold.value,normalize_well_input.value))
+                    btn_run_script = ui.button("Run analysis", on_click=lambda: run_analysis(file_to_run_text.text,threshold.value,normalize_well_input.value))
         with splitter.after:
             ui.label("Camera Controls")
             with ui.row():
