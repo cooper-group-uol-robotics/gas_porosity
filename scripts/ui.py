@@ -179,7 +179,9 @@ def index():
             arduino_off()
             auto_stop_timer.deactivate()
 
-
+    async def pick_file():
+        result = await local_file_picker('~',multiple=False)
+        file_to_run_text.text = result[0]
     ################### IMAGE UPDATING ######################
     def update_image():
         """
@@ -188,9 +190,7 @@ def index():
         video_image.set_source(controller.get_frame())
         draw_circles()
 
-    async def pick_file():
-        result = await local_file_picker('~',multiple=False)
-        file_to_run_text.text = result[0]
+
 
 
 
