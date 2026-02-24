@@ -370,8 +370,9 @@ def index():
                                     )
                                     pres_file_name.set_visibility(False)
                 ui.splitter(horizontal=True).classes('w-full h-24')
-                ui.label("Data Analysis").style("font-family: Arial; font-size: 18px; font-weight: bold;")
+                ui.label("Data Analysis (beta)").style("font-family: Arial; font-size: 18px; font-weight: bold;")
                 ui.label("This will produce a temperature graph for you to observe the outcomes and export the peak areas and peak hights to CSVs").style("font-family: Arial; font-size: 12px;")
+                ui.label("Only works with standard dosing procedure and uses calculate_porus_yulin_ui_v2.py for processing").style("font-family: Arial; font-size: 12px;")
                 with ui.row():
                     threshold = ui.number(
                     label="Temperatue Threshold for peak",
