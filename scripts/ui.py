@@ -181,7 +181,7 @@ def index():
             auto_stop_timer.deactivate()
 
     async def pick_file():
-        result = await local_file_picker('~',multiple=False)
+        result = await local_file_picker(os.getcwd(),multiple=False)
         file_to_run_text.text = result[0]
         
     def run_analysis(file_to_run,threshold,normalize_well):
@@ -262,7 +262,7 @@ def index():
         with splitter.before:
             with ui.splitter(horizontal=True) as h_splitter:
                 with h_splitter.before:
-                    ui.label("Arduino Controls")
+                    ui.label("Arduino Controls").style("font-family: Arial; font-size: 18px; font-weight: bold;")
                     with ui.row():
                         btn_start_arduino = ui.button(
                             "start Listening",
@@ -273,14 +273,14 @@ def index():
                         btn_stop_arduino = ui.button(
                             "stop listening", on_click=lambda: arduino_off()
                         )
-                        ui.label("Dosing Cycles: ")
+                        ui.label("Dosing Cycles: ").style("font-family: Arial; font-size: 14px;")
                         number_of_cycles = ui.select(
                             [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], value=7
                         )
                         btn_dose_stop = ui.button(
                             "stop cycling", on_click=lambda: dose_stop()
                         )
-                        ui.label("Current Cycle: ")
+                        ui.label("Current Cycle: ").style("font-family: Arial; font-size: 14px;")
                         text_cycle = ui.label()
                         btn_stop_arduino.disable()
                         line_plot = ui.line_plot(
@@ -295,7 +295,7 @@ def index():
                         with v_splitter.before:
                             with ui.splitter() as v_splitter_2:
                                 with v_splitter_2.before:
-                                    ui.label("Circulator Controls")
+                                    ui.label("Circulator Controls").style("font-family: Arial; font-size: 18px; font-weight: bold;")
 
                                     btn_degas = ui.button(
                                         "Degas",
@@ -308,7 +308,7 @@ def index():
                                             degas_stabalise_time_input.value
                                         ),
                                     )
-                                    ui.label("Degas Timer:")
+                                    ui.label("Degas Timer:").style("font-family: Arial; font-size: 14px;")
                                     timer = ui.label()
                                     degas_timer = ui.timer(
                                         1,
@@ -350,7 +350,7 @@ def index():
                                         value=60,
                                     )
                                 with v_splitter2.after:
-                                    ui.label("File Config")
+                                    ui.label("File Config").style("font-family: Arial; font-size: 18px; font-weight: bold;")
                                     temp_file_name_input = ui.input(
                                         label="Temp File Name", value="Temperature"
                                     )
@@ -370,7 +370,8 @@ def index():
                                     )
                                     pres_file_name.set_visibility(False)
                 ui.splitter(horizontal=True).classes('w-full h-24')
-                ui.label("Data Analysis")
+                ui.label("Data Analysis").style("font-family: Arial; font-size: 18px; font-weight: bold;")
+                ui.label("This will produce a temperature graph for you to observe the outcomes and export the peak areas and peak hights to CSVs").style("font-family: Arial; font-size: 12px;")
                 with ui.row():
                     threshold = ui.number(
                     label="Temperatue Threshold for peak",
@@ -385,7 +386,7 @@ def index():
                         backward=lambda x: "data/" + x + ".csv",
                     )
                     normalize_well_text.set_visibility(False)
-                    file_to_run_text = ui.label()
+                    file_to_run_text = ui.label().style("font-family: Arial; font-size: 8px;")
                     file_to_run_input = ui.button(
                         "Chose File", on_click=pick_file
                     )
@@ -393,7 +394,7 @@ def index():
                     
                     btn_run_script = ui.button("Run analysis", on_click=lambda: run_analysis(file_to_run_text.text,threshold.value,normalize_well_input.value))
         with splitter.after:
-            ui.label("Camera Controls")
+            ui.label("Camera Controls").style("font-family: Arial; font-size: 18px; font-weight: bold;")
             with ui.row():
                 btn_start_camera = ui.button(
                     "Start Camera", on_click=lambda: start_camera()
@@ -426,7 +427,7 @@ def index():
                 print(video_save_toggle.value)
 
             with ui.row().classes("w-full border p-4"):
-                ui.label("Well Size")
+                ui.label("Well Size").style("font-family: Arial; font-size: 14px;")
                 slider = (
                     ui.slider(min=0, max=20, step=0.1, value=10)
                     .props("label-always")
@@ -434,7 +435,7 @@ def index():
                 )
             video_image = ui.interactive_image(cross="green", on_mouse=mouse_handler)
             with ui.row().classes("w-full border p-4"):
-                ui.label("Number of X Wells")
+                ui.label("Number of X Wells").style("font-family: Arial; font-size: 14px;")
                 slider_x_wells = (
                     ui.slider(
                         min=4,
@@ -446,7 +447,7 @@ def index():
                     .props("label-always")
                     .on("update:model-value", throttle=1.0)
                 )
-                ui.label("Number of Y Wells")
+                ui.label("Number of Y Wells").style("font-family: Arial; font-size: 14px;")
                 slider_y_wells = (
                     ui.slider(
                         min=4,
