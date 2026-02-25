@@ -33,6 +33,8 @@ class Gas_Porosity_Ui:
         self.state = State(
             {0: self.controller.probe, 1: self.controller.edit_corners, 2: self.controller.edit_wells}
         )
+        ############################# ACTUAL UI STUFF #####################################
+
         self.dosing_done_waiting = False
         with ui.splitter() as splitter:
             with splitter.before:
@@ -463,7 +465,6 @@ class Gas_Porosity_Ui:
         # Delay the default handler to allow the disconnect to complete.
         ui.timer(1, lambda: signal.default_int_handler(signum, frame), once=True)
 
-    ############################# ACTUAL UI STUFF #####################################
 
 @ui.page('/')
 def main():
