@@ -3,7 +3,7 @@ from serial import Serial
 class Circulator:
     def __init__(self) -> None:
         self.ser = Serial(None, timeout=0.5)
-        self.ser.port = "COM8"
+        self.ser.port = "COM4"
 
     def on(self):
         self.write(b"out_mode_05 1\r")

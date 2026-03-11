@@ -33,19 +33,21 @@ def start_data_capture():
     mask_thread = threading.Thread(target=calculate_mask, daemon=True)
     mask_thread.start()
     ui.notify("calculating mask please wait")
+    btn_stop_data.enable()
 
 
 def calculate_mask():
-    global btn_stop_data
     controller.calculate_mask()
     global temp_file_name
     controller.create_file(temp_file_name.text)
-    btn_stop_data.enable()
+    print("enable")
+
     writer.activate()
 
 
 def stop_data_capture():
     btn_start_data.enable()
+    print("disable")
     btn_stop_data.disable()
     writer.deactivate()
 
@@ -240,7 +242,7 @@ controller = DataController()
 state = State(
     {0: controller.probe, 1: controller.edit_corners, 2: controller.edit_wells}
 )
-global btn_stop_data
+
 dosing_done_waiting = False
 with ui.splitter() as splitter:
     with splitter.before:
@@ -380,6 +382,7 @@ with ui.splitter() as splitter:
             btn_stop_data = ui.button(
                 "Stop data Capture", on_click=lambda: stop_data_capture()
             )
+            print("disable")
             btn_stop_data.disable()
             ui.label("Save video:")
             video_save_toggle = ui.toggle(["On","Off"],value="Off",on_change=lambda: controller.set_save_video(video_save_toggle.value))
@@ -432,4 +435,4 @@ with ui.splitter() as splitter:
         )
 
 
-ui.run()
+ui.run(reload=False)
