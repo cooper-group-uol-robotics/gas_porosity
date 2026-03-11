@@ -66,7 +66,7 @@ class readThread(StoppableThread):
                         self.last_second = now
                         smooth = sum(self.smoothing_list)
                         smooth = smooth/len(self.smoothing_list)
-                        self.output.push([now], [[smooth]])
+                        self.output(smooth)
                         self.smoothing_list = []
                     else:
                         self.smoothing_list.append(y1)

@@ -102,6 +102,19 @@ class CameraWorker(QObject):
             self.frame_ready.emit(frame)
             time.sleep(0.033)  # ~30 fps
 
+class Worker(QObject):
+    done = Signal(bool)
+
+    def __init__(self, func):
+        super().__init__()
+        self.runner = func
+
+    def start(self):
+        self.runner()
+        self.done.emit(True)
+    
+
+
 
 # ---------------------------------------------------------------------------
 # Main Window
@@ -670,30 +683,38 @@ class GasPorosityWindow(QMainWindow):
             fx = ix * orig_w / pw
             fy = iy * orig_h / ph
             fn = self.state.state_f()
-            ret = fn(fx, fy)
+            ret = fn(int(fx), int(fy))
             if ret:
-                self._notify(ret)
+                self._notify(str(ret))
             if len(self.controller.coords) > 0:
                 self.btn_start_data.setEnabled(True)
                 self.video_save_toggle.setEnabled(True)
 
     # ── Data capture ─────────────────────────────────────────────────────────
+    def _pass(self, *args):
+        pass
 
     def _start_data_capture(self):
         self.btn_start_data.setEnabled(False)
         self.controller.radius = self.slider_well.value() / 10
         self._notify("Calculating mask, please wait…")
-        t = threading.Thread(target=self._calculate_mask, daemon=True)
-        t.start()
+        self._mask_thread = QThread()
+        self._mask_worker = Worker(self.controller.calculate_mask)
+        self._mask_worker.moveToThread(self._mask_thread)
+        self._mask_worker.done.connect(self._calculate_mask)
+        self._mask_thread.started.connect(self._mask_worker.start)
+        self._mask_thread.start()
+
 
     def _calculate_mask(self):
-        self.controller.calculate_mask()
+        #self.controller.calculate_mask()
         fname = f"data/{self.temp_file_input.text()}.csv"
         self.controller.create_file(fname)
-        # Re-enable stop button from main thread
-        QTimer.singleShot(
-            0, lambda: (self.btn_stop_data.setEnabled(True), self._writer_timer.start())
-        )
+
+        self.btn_stop_data.setEnabled(True)
+        
+        self._writer_timer.start()
+
 
     def _stop_data_capture(self):
         self.btn_start_data.setEnabled(True)
@@ -702,6 +723,7 @@ class GasPorosityWindow(QMainWindow):
 
     def _write_data(self):
         fname = f"data/{self.temp_file_input.text()}.csv"
+        print("abc")
         self.controller.write(fname, datetime.now().time())
 
     def _toggle_video_save(self, checked):

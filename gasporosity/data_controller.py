@@ -273,7 +273,7 @@ class DataController:
         if frame is None:
             return placeholder
         # `convert` is a CPU-intensive function, so we run it in a separate process to avoid blocking the event loop and GIL.
-        return "data:image/jpg;base64," + self._convert(frame)
+        return frame
 
     
     # ------------------ Data Handling -----------------
