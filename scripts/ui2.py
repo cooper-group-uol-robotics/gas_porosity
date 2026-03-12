@@ -99,11 +99,12 @@ class CameraWorker(QObject):
     def _loop(self):
         while self._running:
             frame = self._ctrl.get_frame()
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             self.frame_ready.emit(frame)
             time.sleep(0.033)  # ~30 fps
 
 class Worker(QObject):
-    done = Signal(bool)
+    done = Signal()
 
     def __init__(self, func):
         super().__init__()
@@ -111,7 +112,7 @@ class Worker(QObject):
 
     def start(self):
         self.runner()
-        self.done.emit(True)
+        self.done.emit()
     
 
 
@@ -684,7 +685,7 @@ class GasPorosityWindow(QMainWindow):
             fy = iy * orig_h / ph
             fn = self.state.state_f()
             ret = fn(int(fx), int(fy))
-            if ret:
+            if ret is not None:
                 self._notify(str(ret))
             if len(self.controller.coords) > 0:
                 self.btn_start_data.setEnabled(True)
@@ -701,8 +702,10 @@ class GasPorosityWindow(QMainWindow):
         self._mask_thread = QThread()
         self._mask_worker = Worker(self.controller.calculate_mask)
         self._mask_worker.moveToThread(self._mask_thread)
-        self._mask_worker.done.connect(self._calculate_mask)
         self._mask_thread.started.connect(self._mask_worker.start)
+        self._mask_worker.done.connect(self._calculate_mask)
+        self._mask_worker.done.connect(self._mask_worker.deleteLater)
+        self._mask_thread.finished.connect(self._mask_thread.deleteLater)
         self._mask_thread.start()
 
 
@@ -723,7 +726,6 @@ class GasPorosityWindow(QMainWindow):
 
     def _write_data(self):
         fname = f"data/{self.temp_file_input.text()}.csv"
-        print("abc")
         self.controller.write(fname, datetime.now().time())
 
     def _toggle_video_save(self, checked):
