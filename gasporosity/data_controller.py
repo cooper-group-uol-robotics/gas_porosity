@@ -249,7 +249,7 @@ class DataController:
     
     # ---------------- Camera ---------------------
     def start_camera(self):
-        self.video_capture = FlirCamera(sim=True)
+        self.video_capture = FlirCamera()
 
     def focus(self):
         self.video_capture.auto_focus()
