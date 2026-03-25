@@ -9,6 +9,7 @@ from .classes.julabo import Circulator
 import time
 from .classes.threads import DoseThread, readThread
 import datetime
+import json
 
 class DataController:
     def __init__(self) -> None:
@@ -109,6 +110,15 @@ class DataController:
     def cancel_degas(self):
         self.cancel = True
 
+    def load_corners(self):
+        with open("corners.txt",'r') as f:
+            self.corners: list = json.load(f)
+        last_corner = self.corners[-1]
+        self.corners.pop(-1)
+        self.edit_corners(last_corner[0],last_corner[1])
+        
+        
+    
     # ----------------- Wells --------------
     def set_well_count(self,x=None,y=None):
         if x is None:
@@ -222,8 +232,12 @@ class DataController:
                     row.append([pointx, pointy])
                 self.coords.append(row)
             # save our coords of center point
-            self.coords = np.array(self.coords)
+            with open("corners.txt",'w') as f:
+                json.dump(self.corners,f)
 
+                 
+            
+    
     def edit_wells(self, x, y):
         # find the closest well and move its center to the new x,y
         min_distance = 10000000
