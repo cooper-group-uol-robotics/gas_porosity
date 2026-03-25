@@ -1,4 +1,3 @@
-from unittest.mock import Mock
 from .classes.camera import FlirCamera
 from .classes.arduino import Arduino
 import numpy as np
@@ -10,18 +9,6 @@ from .classes.julabo import Circulator
 import time
 from .classes.threads import DoseThread, readThread
 import datetime
-from multiprocessing import Pool, cpu_count
-
-def calculate_mask_worker(args):
-    """Worker function to calculate mask for a single center point."""
-    center_x, center_y, radius = args
-    relevant_coords = [
-        (x, y)
-        for x in range(480)
-        for y in range(640)
-        if (x - center_x) ** 2 + (y - center_y) ** 2 < radius ** 2
-    ]
-    return relevant_coords
 
 class DataController:
     def __init__(self) -> None:
@@ -43,7 +30,6 @@ class DataController:
         self.video_writer_name = datetime.datetime.today().strftime("%d%m%y_%H%M")
         self.video_writer = None
         self.dose_thread = None
-        self.read_thread = None
         self.save_video = True
         
     def set_save_video(self,set):
@@ -101,7 +87,7 @@ class DataController:
                 self.cancel = False
                 self.circulator.off()
                 self.circulator.close()
-                raise Exception("canceled")
+                raise "canceled"
 
     def degas(self,heat,cool,stab,heat_wait,cool_wait,stab_wait):
         self.circulator.open()
@@ -124,6 +110,11 @@ class DataController:
         self.cancel = True
 
     # ----------------- Wells --------------
+    def set_well_count(self,x=None,y=None):
+        if x is None:
+            self.well_count_y = y
+        elif y is None:
+            self.well_count_x = x
 
     def edit_corners(self, x, y):
         self.corners.append((x, y))
@@ -286,37 +277,25 @@ class DataController:
 
     
     # ------------------ Data Handling -----------------
-    # def calculate_mask(self):
-    #     # for each center point
-    #     self.mask = []
-    #     print("calculating")
-    #     for _ in self.coords:
-    #         for value in _:
-    #             center_x = value[1]
-    #             center_y = value[0]
-
-    #             relevantCoords = []
-    #             # for each pixel check if its inside the radius of the current center point, if so save it to that masks entry
-    #             for x in range(480):
-    #                 for y in range(640):
-    #                     if (x - center_x) * (x - center_x) + (y - center_y) * (
-    #                         y - center_y
-    #                     ) < self.radius * self.radius:
-    #                         relevantCoords.append((x, y))
-    #             self.mask.append(relevantCoords)
-    #     return True
-    
     def calculate_mask(self):
-        """Calculate mask using multiprocessing."""
-        print("Calculating mask with multiprocessing...")
-        with Pool(processes=cpu_count()) as pool:
-            # Prepare arguments for each center point
-            args = [(value[1], value[0], self.radius) for coord in self.coords for value in coord]
-            # Distribute work across processes
-            self.mask = pool.map(calculate_mask_worker, args)
-        print("Mask calculation complete.")
-        return True
+        # for each center point
+        self.mask = []
+        print("calculating")
+        for _ in self.coords:
+            for value in _:
+                center_x = value[1]
+                center_y = value[0]
 
+                relevantCoords = []
+                # for each pixel check if its inside the radius of the current center point, if so save it to that masks entry
+                for x in range(480):
+                    for y in range(640):
+                        if (x - center_x) * (x - center_x) + (y - center_y) * (
+                            y - center_y
+                        ) < self.radius * self.radius:
+                            relevantCoords.append((x, y))
+                self.mask.append(relevantCoords)
+        return True
 
     def write(self, path, timestamp):
         csvline = str(timestamp) + ","
@@ -342,7 +321,7 @@ class DataController:
             6: "G",
             7: "H",
         }
-        with open(file_name, "w+") as file:
+        with open(file_name, "w") as file:
             csv_line = "Timestamp,"
             for i in range(self.well_count_x):
                 for j in range(self.well_count_y):
@@ -350,13 +329,10 @@ class DataController:
             file.write(csv_line + "\n")
 
     def cleanup(self):
-        if self.read_thread:
-            self._stop_thread(self.read_thread)
-            self.read_thread.join()
-        if self.dose_thread:
-            self._stop_thread(self.dose_thread)
-            self.dose_thread.join()
-
+        self._stop_thread(self.read_thread)
+        self._stop_thread(self.dose_thread)
+        self.dose_thread.join()
+        self.read_thread.join()
         self.arduino.close()
         if self.video_capture is not None:
             self.video_capture.cleanup()
