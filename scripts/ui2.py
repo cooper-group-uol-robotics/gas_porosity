@@ -231,7 +231,7 @@ class GasPorosityWindow(QMainWindow):
         pg.setConfigOption("foreground", "#cdd6f4")
         self.pressure_plot = pg.PlotWidget(title="Pressure")
         self.pressure_plot.setLabel("left", "Pressure")
-        self.pressure_plot.setLabel("bottom", "Sample")
+        self.pressure_plot.setLabel("bottom", "Time")
         self.pressure_plot.addLegend()
         self.pressure_curve = self.pressure_plot.plot(
             [], [], pen=pg.mkPen("#89b4fa", width=2), name="pressure"
@@ -560,7 +560,7 @@ class GasPorosityWindow(QMainWindow):
         self._cycle_timer.stop()
 
     def _update_cycle(self):
-        self.lbl_cycle.setText(self.controller.read_cycle())
+        self.lbl_cycle.setText(str(self.controller.read_cycle()))
 
     def _check_done(self):
         if not self.controller.dose_thread.is_alive():
