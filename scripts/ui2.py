@@ -353,12 +353,14 @@ class GasPorosityWindow(QMainWindow):
         self.btn_probe = QPushButton("Probe")
         self.btn_focus = QPushButton("Focus")
         self.btn_save = QPushButton("Save Image")
+        self.btn_load_corners = QPushButton("Load from Previous")
         for btn in (
             self.btn_corners,
             self.btn_wells,
             self.btn_probe,
             self.btn_focus,
             self.btn_save,
+            self.btn_load_corners
         ):
             btn.setEnabled(False)
         for btn in (
@@ -368,6 +370,8 @@ class GasPorosityWindow(QMainWindow):
             self.btn_probe,
             self.btn_focus,
             self.btn_save,
+            self.btn_load_corners,
+            
         ):
             cam_row.addWidget(btn)
         cam_row.addStretch()
@@ -486,6 +490,7 @@ class GasPorosityWindow(QMainWindow):
         self.btn_probe.clicked.connect(lambda: self.state.set_state(0))
         self.btn_focus.clicked.connect(self.controller.focus)
         self.btn_save.clicked.connect(self._save_image_dialog)
+        self.btn_load_corners.clicked.connect(self._load_corners)
 
         # Data capture
         self.btn_start_data.clicked.connect(self._start_data_capture)
@@ -620,6 +625,7 @@ class GasPorosityWindow(QMainWindow):
                 self.btn_probe,
                 self.btn_focus,
                 self.btn_save,
+                self.btn_load_corners,
             ):
                 b.setEnabled(True)
 
@@ -690,6 +696,11 @@ class GasPorosityWindow(QMainWindow):
             if len(self.controller.coords) > 0:
                 self.btn_start_data.setEnabled(True)
                 self.video_save_toggle.setEnabled(True)
+    
+    def _load_corners(self):
+        self.controller.load_corners()
+        self.btn_start_data.setEnabled(True)
+        self.video_save_toggle.setEnabled(True)
 
     # ── Data capture ─────────────────────────────────────────────────────────
     def _pass(self, *args):
