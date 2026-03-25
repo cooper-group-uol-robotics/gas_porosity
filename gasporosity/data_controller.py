@@ -232,6 +232,7 @@ class DataController:
                     row.append([pointx, pointy])
                 self.coords.append(row)
             # save our coords of center point
+            self.coords = np.array(self.coords)
             with open("corners.txt",'w') as f:
                 json.dump(self.corners,f)
 
