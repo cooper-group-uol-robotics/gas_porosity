@@ -113,9 +113,10 @@ class DataController:
     def load_corners(self):
         with open("corners.txt",'r') as f:
             self.corners: list = json.load(f)
-        last_corner = self.corners[-1]
-        self.corners.pop(-1)
-        self.edit_corners(last_corner[0],last_corner[1])
+        # last_corner = self.corners[-1]
+        # self.corners.pop(-1)
+        # self.edit_corners(last_corner[0],last_corner[1])
+        self.coords = np.load("coords.npy")
         
         
     
@@ -235,7 +236,8 @@ class DataController:
             self.coords = np.array(self.coords)
             with open("corners.txt",'w') as f:
                 json.dump(self.corners,f)
-
+            np.save("coords",self.coords)
+            
                  
             
     
@@ -250,7 +252,7 @@ class DataController:
                     swap = (i, j)
 
         self.coords[swap[0]][swap[1]] = [x, y]
-
+        np.save("coords.npy",self.coords)
 
     
     # ---------------- Camera ---------------------
